@@ -64,4 +64,7 @@ class Listener:
         with self._lock:
             self._callbacks.append(func)
 
-
+    def stop(self):
+        """Para a captura da porta"""
+        with self._lock:
+            self._input_port.close()

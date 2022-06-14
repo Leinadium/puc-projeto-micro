@@ -36,7 +36,7 @@ class Tabela:
             s.set("[ ]")
 
     @property
-    def finalizada(self):
+    def finalizada(self) -> bool:
         return len(self._notas) == self._quantidade
 
     def get_nome(self, index: int):
@@ -89,6 +89,9 @@ class Tabela:
         """
         self._callback_botao_final = callback
         self._callback_botao_final(False)   # chama como False ja no inicio
+
+    def fechar(self):
+        self._listener.stop()
 
 
 # funcionalidade principal da tela
@@ -169,6 +172,7 @@ tabela.add_callback_pronto(
 def calibrar():
     root.mainloop()
 
+    tabela.fechar()
     return tabela.get_notas() if tabela.get_notas() else None
 
 
