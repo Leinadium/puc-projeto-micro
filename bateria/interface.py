@@ -57,3 +57,30 @@ class Interface:
     def stop(self):
         """Para a captura de notas."""
         self._listener.stop()
+
+
+if __name__ == "__main__":
+    # o código abaixo retorna erro pois não há dispositivo midi com o nome.
+    # o código existe somente para exemplo
+    import mido
+    from time import sleep
+
+    def cb(nota: NotaProcessada):
+        print(nota)
+
+    interface = Interface(
+        midi_port=mido.open_input('AAAA'),  # noqa
+        callback=cb
+    )
+
+    interface.atribui_notas(
+        bumbo=42,
+        caixa=43,
+        hihat=44,
+        tom=45,
+        prato=48
+    )
+
+    interface.start()
+    sleep(10)
+    interface.stop()
