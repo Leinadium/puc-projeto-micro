@@ -1,4 +1,3 @@
-from time import sleep
 import pygame
 from pygame.locals import *
 from sys import exit
@@ -100,7 +99,7 @@ def move_notas():
 def exibe_notas():
     for nota in notas_tela:
         desenha_acorde_movel(nota.cor, pos_cordas[nota.corda], nota.pos_y)
-    pygame.display.flip()
+
 
 
 def insere_nota_tela(nota):
@@ -126,18 +125,26 @@ def proximo_segundo():
     exibe_notas()
 
 
+    pygame.display.flip()
+
 run = True
+
+
+# evento de loop
+evento_usuario = pygame.event.custom_type()
+pygame.time.set_timer(
+    pygame.event.Event(
+        evento_usuario
+    ),
+    millis=500,
+    loops=0
+)
+
 while run:
     for event in pygame.event.get():
         if event.type == QUIT:
             run = False
             pygame.quit()
-
-    proximo_segundo()
-    sleep(1)
-
-
-
-
-if __name__ == "__main__":
-    print("OK")
+        # detecta proximo decida
+        if event.type == evento_usuario:
+            proximo_segundo()
