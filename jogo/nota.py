@@ -5,4 +5,3 @@ class Nota:
         self.corda = corda
         self.pos_y = pos_y
         self.tempo_acorde = tempo_acorde
-

@@ -18,6 +18,7 @@ VERMELHO = (193, 27, 27)
 VERDE = (26, 153, 61)
 PRETO = (0, 0, 0)
 BRANCO = (255, 255, 255)
+
 map_cores = {
     "azul": AZUL,
     "vermelho": VERMELHO,
@@ -32,6 +33,7 @@ RAIO_ACORDE_MOVEL = 10
 TAMANHO_LINHA_VERTICAL = 439
 
 pos_cordas = [276.07, 320.24, 364.41, 408.57, 452.74]
+pos_tempo = [0, 45, 90, 135, 180, 225, 270, 315, 360, 405, 450]
 
 notas_tela = [Nota("verde", 0, 330, 0), Nota("vermelho", 1, 110, 0), Nota("verde", 0, 200, 0), Nota("laranja", 4, 150, 0)]
 
@@ -93,13 +95,11 @@ def desenha_tela():
 
 def move_notas():
     for nota in notas_tela:
-        nota.pos_y += 20
-
+        nota.pos_y += 5
 
 def exibe_notas():
     for nota in notas_tela:
         desenha_acorde_movel(nota.cor, pos_cordas[nota.corda], nota.pos_y)
-
 
 
 def insere_nota_tela(nota):
@@ -124,10 +124,7 @@ def proximo_segundo():
     move_notas()
     exibe_notas()
 
-
     pygame.display.flip()
-
-run = True
 
 
 # evento de loop
@@ -136,15 +133,18 @@ pygame.time.set_timer(
     pygame.event.Event(
         evento_usuario
     ),
-    millis=500,
+    millis=50,
     loops=0
 )
 
+
+run = True
 while run:
     for event in pygame.event.get():
         if event.type == QUIT:
             run = False
             pygame.quit()
+
         # detecta proximo decida
         if event.type == evento_usuario:
             proximo_segundo()
