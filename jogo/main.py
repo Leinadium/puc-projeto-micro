@@ -112,18 +112,31 @@ def insere_nota_tela(nota):
 
 
 def remove_nota_tocada(cor):
+    y_max = -1
+    index_y_max = -1
 
     for (i, nota) in enumerate(notas_tela):
         if cor == nota.cor:
             if nota.pos_y >= 435 and nota.pos_y <= 470:
+                print("acertou")
                 notas_tela.pop(i)
                 return 1
-    return 0
+            else:
+                if nota.pos_y > y_max:
+                    y_max = nota.pos_y
+                    index_y_max = i
+
+    if index_y_max != -1:
+        print("errou")
+        notas_tela.pop(index_y_max)
+        return 0
 
 
 def remove_se_chegou_no_final():
     for (i, nota) in enumerate(notas_tela):
         if nota.pos_y > 480:
+            print("errou"
+                  "")
             notas_tela.pop(i)
 
     return 1
@@ -158,8 +171,18 @@ while run:
             pygame.quit()
 
         if event.type == KEYDOWN:
-            remove_nota_tocada("verde")
-            print("removeu verde")
+
+            if event.key == pygame.K_a:
+                remove_nota_tocada("verde")
+            if event.key == pygame.K_s:
+                remove_nota_tocada("vermelho")
+            if event.key == pygame.K_d:
+                remove_nota_tocada("amarelo")
+            if event.key == pygame.K_f:
+                remove_nota_tocada("azul")
+            if event.key == pygame.K_g:
+                remove_nota_tocada("laranja")
+
         # detecta proximo decida
         if event.type == evento_usuario:
             proximo_segundo()
