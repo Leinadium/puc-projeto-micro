@@ -1,4 +1,4 @@
-from listener import Listener, Nota
+from .listener import Listener, Nota
 from mido.backends.rtmidi import Input
 from dataclasses import dataclass
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     )
 
     interface.atribui_notas(
-        bumbo=notas[0],
+        kick=notas[0],
         caixa=notas[1],
         hihat=notas[2],
         tom=notas[3],
@@ -85,5 +85,5 @@ if __name__ == "__main__":
     )
 
     interface.start()
-    sleep(10)
+    sleep(20)
     interface.stop()

@@ -1,14 +1,12 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from nota import Nota
-
-
-pygame.init()
+from .nota import Nota
+from bateria.calibragem import calibrar
+from bateria.interface import Interface, NotaProcessada
 
 LARGURA = 720
 ALTURA = 480
-
 
 # CORES
 LARANJA = (231, 145, 17)
@@ -27,6 +25,13 @@ map_cores = {
     "laranja": LARANJA,
 }
 
+map_nome_notas = {
+    "bumbo": "azul",
+    "caixa": "vermelho",
+    "hihat": "amarelo",
+    "tom": "verde",
+    "prato": "laranja"
+}
 
 RAIO_ACORDE = 15
 RAIO_ACORDE_MOVEL = 10
@@ -34,13 +39,10 @@ TAMANHO_LINHA_VERTICAL = 439
 
 pos_cordas = [276.07, 320.24, 364.41, 408.57, 452.74]
 
-notas_tela = [Nota("verde", 0, 330, 0), Nota("vermelho", 1, 110, 0), Nota("verde", 0, 200, 0), Nota("laranja", 4, 150, 0)]
+notas_tela = [Nota("verde", 0, 330, 0), Nota("vermelho", 1, 110, 0), Nota("verde", 0, 200, 0),
+              Nota("laranja", 4, 150, 0)]
 
-tela = pygame.display.set_mode((LARGURA, ALTURA))
-pygame.display.set_caption("Guitar hero 3.5")
-tela.fill(BRANCO)
-pygame.display.flip()
-
+tela = None
 
 def desenha_acorde(cor, posX, posY):
     pygame.draw.circle(tela, PRETO, (posX, posY), RAIO_ACORDE + 3)
@@ -59,14 +61,12 @@ def desenha_caminho_notas():
     s.fill((160, 184, 231))
     tela.blit(s, (248, 0))
 
-
     # linhas verticais
     pygame.draw.line(tela, PRETO, (pos_cordas[0], 0), (pos_cordas[0], TAMANHO_LINHA_VERTICAL), width=3)
     pygame.draw.line(tela, PRETO, (pos_cordas[1], 0), (pos_cordas[1], TAMANHO_LINHA_VERTICAL), width=3)
     pygame.draw.line(tela, PRETO, (pos_cordas[2], 0), (pos_cordas[2], TAMANHO_LINHA_VERTICAL), width=3)
     pygame.draw.line(tela, PRETO, (pos_cordas[3], 0), (pos_cordas[3], TAMANHO_LINHA_VERTICAL), width=3)
     pygame.draw.line(tela, PRETO, (pos_cordas[4], 0), (pos_cordas[4], TAMANHO_LINHA_VERTICAL), width=3)
-
 
     # fim das notas
     desenha_acorde("verde", pos_cordas[0], 450)
@@ -83,7 +83,6 @@ def desenha_pontuacao(pontos):
     s.fill((176, 176, 176))
     tela.blit(s, (38, 38))
 
-
     # texto dos pontos
 
 
@@ -93,18 +92,20 @@ def desenha_tela():
 
     return 1
 
+
 def move_notas():
     for nota in notas_tela:
         nota.pos_y += 5
 
     return 1
 
-    return 1
+
 def exibe_notas():
     for nota in notas_tela:
         desenha_acorde_movel(nota.cor, pos_cordas[nota.corda], nota.pos_y)
 
     return 1
+
 
 def insere_nota_tela(nota):
     notas_tela.append(nota)
@@ -117,7 +118,7 @@ def remove_nota_tocada(cor):
 
     for (i, nota) in enumerate(notas_tela):
         if cor == nota.cor:
-            if nota.pos_y >= 435 and nota.pos_y <= 470:
+            if 435 <= nota.pos_y <= 470:
                 print("acertou")
                 notas_tela.pop(i)
                 return 1
@@ -128,7 +129,7 @@ def remove_nota_tocada(cor):
 
     if index_y_max != -1:
         print("errou")
-        notas_tela.pop(index_y_max)
+        # notas_tela.pop(index_y_max)
         return 0
 
 
@@ -140,8 +141,8 @@ def remove_se_chegou_no_final():
 
     return 1
 
-def proximo_segundo():
 
+def proximo_segundo():
     desenha_tela()
     move_notas()
     remove_se_chegou_no_final()
@@ -151,37 +152,71 @@ def proximo_segundo():
     return 1
 
 
-# evento de loop
-evento_usuario = pygame.event.custom_type()
-pygame.time.set_timer(
-    pygame.event.Event(
-        evento_usuario
-    ),
-    millis=50,
-    loops=0
-)
+def main(bateria=False):
 
+    if bateria:
+        import mido
 
-run = True
-while run:
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            run = False
-            pygame.quit()
+        def callback(nota: NotaProcessada):
+            print("Recebi nota ", nota.nome)
+            remove_nota_tocada(map_nome_notas[nota.nome])
 
-        if event.type == KEYDOWN:
+        id_notas = calibrar()
+        interface = Interface(
+            midi_port=mido.open_input('Circuit 0'),  # noqa
+            callback=callback
+        )
+        interface.atribui_notas(
+            bumbo=id_notas[0],
+            caixa=id_notas[1],
+            hihat=id_notas[2],
+            tom=id_notas[3],
+            prato=id_notas[4]
+        )
+        interface.start()
+    else:
+        interface = None
 
-            if event.key == pygame.K_a:
-                remove_nota_tocada("verde")
-            if event.key == pygame.K_s:
-                remove_nota_tocada("vermelho")
-            if event.key == pygame.K_d:
-                remove_nota_tocada("amarelo")
-            if event.key == pygame.K_f:
-                remove_nota_tocada("azul")
-            if event.key == pygame.K_g:
-                remove_nota_tocada("laranja")
+    pygame.init()
+    global tela
+    tela = pygame.display.set_mode((LARGURA, ALTURA))
+    pygame.display.set_caption("Guitar hero 3.5")
+    tela.fill(BRANCO)
+    pygame.display.flip()
 
-        # detecta proximo decida
-        if event.type == evento_usuario:
-            proximo_segundo()
+    # evento de loop
+    evento_usuario = pygame.event.custom_type()
+    pygame.time.set_timer(
+        pygame.event.Event(
+            evento_usuario
+        ),
+        millis=50,
+        loops=0
+    )
+
+    run = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                run = False
+                pygame.quit()
+
+            if event.type == KEYDOWN:
+
+                if event.key == pygame.K_a:
+                    remove_nota_tocada("verde")
+                if event.key == pygame.K_s:
+                    remove_nota_tocada("vermelho")
+                if event.key == pygame.K_d:
+                    remove_nota_tocada("amarelo")
+                if event.key == pygame.K_f:
+                    remove_nota_tocada("azul")
+                if event.key == pygame.K_g:
+                    remove_nota_tocada("laranja")
+
+            # detecta proximo decida
+            if event.type == evento_usuario:
+                proximo_segundo()
+
+    if interface is not None:
+        interface.stop()

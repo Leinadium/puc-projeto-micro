@@ -3,7 +3,7 @@ import tkinter
 from tkinter import N, E, S, W
 from tkinter import ttk
 
-from listener import Listener, Nota
+from .listener import Listener, Nota
 
 # para typing
 from typing import Optional, List, Any
