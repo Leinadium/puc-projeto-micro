@@ -24,7 +24,7 @@ class Interface:
         self._listener = Listener()
         self._porta = midi_port
         self._dicionario: dict = dict()
-        self._callback = callback
+        self._callback_usuario = callback
 
     def atribui_notas(self, **kwargs):
         """Recebe as notas MIDIs para serem processadas
@@ -33,13 +33,13 @@ class Interface:
         e value o valor da nota
         """
         self._dicionario.clear()
-        for k, v in kwargs:
+        for k, v in kwargs.items():
             self._dicionario[int(v)] = str(k)
 
     def _callback(self, nota: Nota):
         """Faz o callback para o client"""
         if nota.codigo in self._dicionario:
-            self._callback(
+            self._callback_usuario(
                 NotaProcessada(
                     nome=self._dicionario[nota.codigo],
                     on=nota.on
@@ -68,17 +68,20 @@ if __name__ == "__main__":
     def cb(nota: NotaProcessada):
         print(nota)
 
+    from calibragem import calibrar
+    notas = calibrar()
+
     interface = Interface(
-        midi_port=mido.open_input('AAAA'),  # noqa
+        midi_port=mido.open_input('Circuit 0'),  # noqa
         callback=cb
     )
 
     interface.atribui_notas(
-        bumbo=42,
-        caixa=43,
-        hihat=44,
-        tom=45,
-        prato=48
+        bumbo=notas[0],
+        caixa=notas[1],
+        hihat=notas[2],
+        tom=notas[3],
+        prato=notas[4]
     )
 
     interface.start()
