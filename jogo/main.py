@@ -33,7 +33,6 @@ RAIO_ACORDE_MOVEL = 10
 TAMANHO_LINHA_VERTICAL = 439
 
 pos_cordas = [276.07, 320.24, 364.41, 408.57, 452.74]
-pos_tempo = [0, 45, 90, 135, 180, 225, 270, 315, 360, 405, 450]
 
 notas_tela = [Nota("verde", 0, 330, 0), Nota("vermelho", 1, 110, 0), Nota("verde", 0, 200, 0), Nota("laranja", 4, 150, 0)]
 
@@ -92,39 +91,52 @@ def desenha_tela():
     tela.fill(BRANCO)
     desenha_caminho_notas()
 
+    return 1
 
 def move_notas():
     for nota in notas_tela:
         nota.pos_y += 5
 
+    return 1
+
+    return 1
 def exibe_notas():
     for nota in notas_tela:
         desenha_acorde_movel(nota.cor, pos_cordas[nota.corda], nota.pos_y)
 
+    return 1
 
 def insere_nota_tela(nota):
     notas_tela.append(nota)
+    return 1
 
 
-def remove_nota_tela(cor):
-
-    maior_y = -1
-    index_maior_y = -1
+def remove_nota_tocada(cor):
 
     for (i, nota) in enumerate(notas_tela):
         if cor == nota.cor:
-            if nota.pos_y > maior_y:
-                maior_y = nota.pos_y
-                index_maior_y = i
+            if nota.pos_y >= 435 and nota.pos_y <= 470:
+                notas_tela.pop(i)
+                return 1
+    return 0
 
-    notas_tela.pop(index_maior_y)
+
+def remove_se_chegou_no_final():
+    for (i, nota) in enumerate(notas_tela):
+        if nota.pos_y > 480:
+            notas_tela.pop(i)
+
+    return 1
 
 def proximo_segundo():
+
     desenha_tela()
     move_notas()
+    remove_se_chegou_no_final()
     exibe_notas()
-
     pygame.display.flip()
+
+    return 1
 
 
 # evento de loop
@@ -145,6 +157,9 @@ while run:
             run = False
             pygame.quit()
 
+        if event.type == KEYDOWN:
+            remove_nota_tocada("verde")
+            print("removeu verde")
         # detecta proximo decida
         if event.type == evento_usuario:
             proximo_segundo()
