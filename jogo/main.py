@@ -1,6 +1,5 @@
 import pygame
 from pygame.locals import *
-from sys import exit
 from .nota import Nota
 from bateria.calibragem import calibrar
 from bateria.interface import Interface, NotaProcessada
@@ -16,6 +15,8 @@ VERMELHO = (193, 27, 27)
 VERDE = (26, 153, 61)
 PRETO = (0, 0, 0)
 BRANCO = (255, 255, 255)
+
+ALTURA_ACORDE = 450
 
 map_cores = {
     "azul": AZUL,
@@ -39,10 +40,35 @@ TAMANHO_LINHA_VERTICAL = 439
 
 pos_cordas = [276.07, 320.24, 364.41, 408.57, 452.74]
 
-notas_tela = [Nota("verde", 0, 330, 0), Nota("vermelho", 1, 110, 0), Nota("verde", 0, 200, 0),
-              Nota("laranja", 4, 150, 0)]
+pos_cordas_dict = {
+    'verde': 0,
+    'vermelho': 1,
+    'amarelo': 2,
+    'azul': 3,
+    'laranja': 4
+}
 
-tela = None
+# notas_tela_antigo = [
+#     Nota("verde", 0, 330, 0), Nota("vermelho", 1, 110, 0), Nota("verde", 0, 200, 0), Nota("laranja", 4, 150, 0)]
+
+
+def calcula_altura_nota(tam_divisao, bpm, tempo):
+    deslomento_em_funcao_da_base = tam_divisao * tempo * bpm / 60
+    return ALTURA_ACORDE - deslomento_em_funcao_da_base
+
+
+notas_verdade = [
+    ('verde', 0.2564 + 3, 0),
+    ('vermelho', 0.2564 * 2 + 3, 0),
+    ('verde', 0.2564 * 3 + 3, 0),
+    ('vermelho', 0.2564 * 4 + 3, 0),
+    ('verde', 0.2564 * 5 + 3, 0),
+    ('vermelho', 0.2564 * 6 + 3, 0),
+]
+
+
+tela: pygame.Surface = None     # noqa
+
 
 def desenha_acorde(cor, posX, posY):
     pygame.draw.circle(tela, PRETO, (posX, posY), RAIO_ACORDE + 3)
@@ -69,14 +95,19 @@ def desenha_caminho_notas():
     pygame.draw.line(tela, PRETO, (pos_cordas[4], 0), (pos_cordas[4], TAMANHO_LINHA_VERTICAL), width=3)
 
     # fim das notas
-    desenha_acorde("verde", pos_cordas[0], 450)
-    desenha_acorde("vermelho", pos_cordas[1], 450)
-    desenha_acorde("amarelo", pos_cordas[2], 450)
-    desenha_acorde("azul", pos_cordas[3], 450)
-    desenha_acorde("laranja", pos_cordas[4], 450)
+    desenha_acorde("verde", pos_cordas[0], ALTURA_ACORDE)
+    desenha_acorde("vermelho", pos_cordas[1], ALTURA_ACORDE)
+    desenha_acorde("amarelo", pos_cordas[2], ALTURA_ACORDE)
+    desenha_acorde("azul", pos_cordas[3], ALTURA_ACORDE)
+    desenha_acorde("laranja", pos_cordas[4], ALTURA_ACORDE)
 
 
 def desenha_pontuacao(pontos):
+    """Desenha a pontuação na tela
+
+    Args:
+        pontos (int): pontos do jogador
+    """
     # caixa dos pontos
     s = pygame.Surface((171, 105))
     s.set_alpha(89)
@@ -93,26 +124,27 @@ def desenha_tela():
     return 1
 
 
-def move_notas():
+def move_notas(notas_tela, millis, altura_nota, bpm):
     for nota in notas_tela:
-        nota.pos_y += 5
+        # nota.pos_y += 5
+        nota.pos_y += millis / 1000 * altura_nota * bpm / 60
 
     return 1
 
 
-def exibe_notas():
+def exibe_notas(notas_tela):
     for nota in notas_tela:
         desenha_acorde_movel(nota.cor, pos_cordas[nota.corda], nota.pos_y)
 
     return 1
 
 
-def insere_nota_tela(nota):
+def insere_nota_tela(notas_tela, nota):
     notas_tela.append(nota)
     return 1
 
 
-def remove_nota_tocada(cor):
+def remove_nota_tocada(notas_tela, cor):
     y_max = -1
     index_y_max = -1
 
@@ -133,7 +165,7 @@ def remove_nota_tocada(cor):
         return 0
 
 
-def remove_se_chegou_no_final():
+def remove_se_chegou_no_final(notas_tela):
     for (i, nota) in enumerate(notas_tela):
         if nota.pos_y > 480:
             print("errou")
@@ -142,24 +174,21 @@ def remove_se_chegou_no_final():
     return 1
 
 
-def proximo_segundo():
+def proximo_segundo(notas_tela, millis, altura_nota, bpm):
     desenha_tela()
-    move_notas()
-    remove_se_chegou_no_final()
-    exibe_notas()
+    move_notas(notas_tela, millis, altura_nota, bpm)
+    remove_se_chegou_no_final(notas_tela)
+    exibe_notas(notas_tela)
     pygame.display.flip()
-
-    return 1
 
 
 def main(bateria=False):
-
     if bateria:
         import mido
 
         def callback(nota: NotaProcessada):
             print("Recebi nota ", nota.nome)
-            remove_nota_tocada(map_nome_notas[nota.nome])
+            remove_nota_tocada(notas_tela, map_nome_notas[nota.nome])
 
         id_notas = calibrar()
         interface = Interface(
@@ -184,39 +213,46 @@ def main(bateria=False):
     tela.fill(BRANCO)
     pygame.display.flip()
 
-    # evento de loop
-    evento_usuario = pygame.event.custom_type()
-    pygame.time.set_timer(
-        pygame.event.Event(
-            evento_usuario
-        ),
-        millis=50,
-        loops=0
-    )
+    FPS = 30
+    MILLIS = 1 / FPS * 1000
+    BPM = 116
+
+    notas_tela = [
+        Nota(
+            cor,
+            pos_cordas_dict[cor],
+            calcula_altura_nota(ALTURA_ACORDE / 9, 117, tempo),
+            duracao
+        )
+        for cor, tempo, duracao in notas_verdade
+    ]
+
+    altura_de_uma_nota = ALTURA_ACORDE / 9
 
     run = True
+    clock = pygame.time.Clock()
     while run:
+        clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == QUIT:
                 run = False
                 pygame.quit()
+                break
 
             if event.type == KEYDOWN:
-
                 if event.key == pygame.K_a:
-                    remove_nota_tocada("verde")
+                    remove_nota_tocada(notas_tela, "verde")
                 if event.key == pygame.K_s:
-                    remove_nota_tocada("vermelho")
+                    remove_nota_tocada(notas_tela, "vermelho")
                 if event.key == pygame.K_d:
-                    remove_nota_tocada("amarelo")
+                    remove_nota_tocada(notas_tela, "amarelo")
                 if event.key == pygame.K_f:
-                    remove_nota_tocada("azul")
+                    remove_nota_tocada(notas_tela, "azul")
                 if event.key == pygame.K_g:
-                    remove_nota_tocada("laranja")
+                    remove_nota_tocada(notas_tela, "laranja")
 
-            # detecta proximo decida
-            if event.type == evento_usuario:
-                proximo_segundo()
+        if run:
+            proximo_segundo(notas_tela, MILLIS, altura_de_uma_nota, bpm=BPM)
 
     if interface is not None:
         interface.stop()

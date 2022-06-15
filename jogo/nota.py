@@ -1,7 +1,9 @@
-class Nota:
+from dataclasses import dataclass
 
-    def __init__(self, cor, corda, pos_y, tempo_acorde):
-        self.cor = cor
-        self.corda = corda
-        self.pos_y = pos_y
-        self.tempo_acorde = tempo_acorde
+
+@dataclass
+class Nota:
+    cor: str
+    corda: int
+    pos_y: float
+    tempo_acorde: int
