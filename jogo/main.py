@@ -135,8 +135,7 @@ def remove_nota_tocada(cor):
 def remove_se_chegou_no_final():
     for (i, nota) in enumerate(notas_tela):
         if nota.pos_y > 480:
-            print("errou"
-                  "")
+            print("errou")
             notas_tela.pop(i)
 
     return 1
