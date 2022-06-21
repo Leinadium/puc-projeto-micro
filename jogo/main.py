@@ -1,8 +1,8 @@
 import pygame
 from pygame.locals import *
 from .nota import Nota
-from bateria.calibragem import calibrar
-from bateria.interface import Interface, NotaProcessada
+from .comunicacao.bateria.calibragem import calibrar_bateria
+from .comunicacao.bateria.interfacebateria import InterfaceBateria, NotaProcessada
 
 LARGURA = 720
 ALTURA = 480
@@ -190,8 +190,8 @@ def main(bateria=False):
             print("Recebi nota ", nota.nome)
             remove_nota_tocada(notas_tela, map_nome_notas[nota.nome])
 
-        id_notas = calibrar()
-        interface = Interface(
+        id_notas = calibrar_bateria()
+        interface = InterfaceBateria(
             midi_port=mido.open_input('Circuit 0'),  # noqa
             callback=callback
         )

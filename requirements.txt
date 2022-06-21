@@ -1,3 +1,4 @@
 pygame~=2.1.2
 mido~=1.2.10
 python-rtmidi
+pyserial~=3.5

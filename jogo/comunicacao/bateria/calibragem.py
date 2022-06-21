@@ -3,7 +3,7 @@ import tkinter
 from tkinter import N, E, S, W
 from tkinter import ttk
 
-from .listener import Listener, Nota
+from .listenerbateria import ListenerBateria, NotaBateria
 
 # para typing
 from typing import Optional, List, Any
@@ -26,7 +26,7 @@ class Tabela:
         self._quantidade = tamanho
         self._string_vars = [tkinter.StringVar() for _ in range(tamanho)]
         self._notas: List[int] = list()
-        self._listener: Listener = Listener()
+        self._listener: ListenerBateria = ListenerBateria()
         self._listener.register_callback(lambda n: self._callback(n))
         self._buffer: Any = None
         self._callback_botao_final = None
@@ -51,9 +51,9 @@ class Tabela:
         """Troca a porta para ouvir"""
         self._listener.set_input_port(port)
 
-    def _callback(self, nota: Nota):
+    def _callback(self, nota: NotaBateria):
         """Comando executado pelo listener"""
-        if isinstance(self._buffer, Nota):
+        if isinstance(self._buffer, NotaBateria):
             # se a ultima nota foi a mesma,
             # AND se a atual foi um release,
             # AND a outra foi um pressionar
@@ -169,7 +169,7 @@ tabela.add_callback_pronto(
 )
 
 
-def calibrar():
+def calibrar_bateria():
     root.mainloop()
 
     tabela.fechar()
@@ -178,5 +178,5 @@ def calibrar():
 
 if __name__ == "__main__":
     print(
-        calibrar()
+        calibrar_bateria()
     )

@@ -1,5 +1,4 @@
 from jogo.main import main
-import bateria
 
 print("bom dia")
 
