@@ -1,6 +1,6 @@
 from .listenerguitarra import ListenerGuitarra, NotaGuitarra
 from ..base import InterfaceBase
-from ..nota_processada import NotaProcessada
+from ..notaprocessada import NotaProcessada
 
 from typing import Callable, List
 from serial import Serial

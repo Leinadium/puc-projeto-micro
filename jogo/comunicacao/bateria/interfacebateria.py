@@ -1,6 +1,6 @@
 from .listenerbateria import ListenerBateria, NotaBateria
 from ..base import InterfaceBase
-from ..nota_processada import NotaProcessada
+from ..notaprocessada import NotaProcessada
 from mido.backends.rtmidi import Input
 
 from typing import Callable
