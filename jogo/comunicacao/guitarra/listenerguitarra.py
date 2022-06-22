@@ -92,7 +92,6 @@ class ListenerGuitarra(ListenerBase):
         """Para a captura da porta"""
         with self._lock:
             if self._running:
-                self._input_port.close()
                 self._running = False
                 self._thread.join()
                 self._thread = None
@@ -104,7 +103,7 @@ class ListenerGuitarra(ListenerBase):
                 linha_bytes: bytes = self._input_port.readline()
             except AttributeError:
                 break
-            print("LI UMA LINHA -> ", linha_bytes)
+            # print("LI UMA LINHA -> ", linha_bytes)
             # decodificacao dos bytes
             try:
                 linha: str = linha_bytes.decode()
@@ -123,12 +122,15 @@ class ListenerGuitarra(ListenerBase):
             except ValueError:
                 continue
 
+            if ret.codigo < 0:
+                continue        # nenhuma nota
+
             pressionado_raw: str = linha_lista[1]
             if pressionado_raw not in ('1', '0'):   # deve ser um binario
                 continue
             ret.on = pressionado_raw.startswith('1')
 
-            print(ret)
+            # print(ret)
 
             # processando de acordo com o buffer
             if self._nota_buffer is not None:
@@ -147,6 +149,11 @@ class ListenerGuitarra(ListenerBase):
         """Inicia a captura da porta"""
         if not self._running and self._thread is None:
             self._running = True
+            self._input_port.timeout = 5
             self._thread = Thread(target=self._loop)
             self._thread.start()
             print("Iniciando thread")
+
+    def close(self):
+        if self._input_port.is_open:
+            self._input_port.close()

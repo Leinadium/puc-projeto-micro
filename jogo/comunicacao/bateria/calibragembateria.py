@@ -175,8 +175,3 @@ def calibrar_bateria():
     tabela.fechar()
     return tabela.get_notas() if tabela.get_notas() else None
 
-
-if __name__ == "__main__":
-    print(
-        calibrar_bateria()
-    )

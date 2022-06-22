@@ -62,7 +62,7 @@ class Preview:
         """Comando executado pelo listener"""
         botao_final.state(['!disabled'])
         self.string_var = self.ONLINE
-        self.retorno_calibragem = input_combo_var.get(), range_combo_var.get()
+        self.retorno_calibragem = input_combo_var.get(), float(range_combo_var.get())
 
     @property
     def retorno_calibragem(self):
@@ -74,6 +74,7 @@ class Preview:
 
     def close(self):
         self._listener.stop()
+        self._listener.close()
 
 
 # base do tkinter
@@ -127,6 +128,7 @@ ttk.Label(mainframe, text='Escolha o range de consideração').grid(
 )
 lista_ranges: List[str] = [str(x / 10) for x in range(1, 6)]
 range_combo_var = tkinter.StringVar()
+range_combo_var.set(lista_ranges[len(lista_ranges) // 2])
 
 range_combo = ttk.Combobox(mainframe, textvariable=range_combo_var)
 range_combo.grid(column=0, row=4, pady=(0, 20))      # noqa
@@ -151,8 +153,3 @@ def calibrar_guitarra():
     preview.close()
     return preview.retorno_calibragem
 
-
-if __name__ == '__main__':
-    print(
-        calibrar_guitarra()
-    )

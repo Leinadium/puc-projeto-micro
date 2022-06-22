@@ -1,8 +1,7 @@
 import pygame
 from pygame.locals import *
 from .nota import Nota
-from .comunicacao.bateria.calibragembateria import calibrar_bateria
-from .comunicacao.bateria.interfacebateria import InterfaceBateria, NotaProcessada
+from .comunicacao.notaprocessada import NotaProcessada
 
 LARGURA = 720
 ALTURA = 480
@@ -56,16 +55,6 @@ def calcula_altura_nota(tam_divisao, bpm, tempo):
     deslomento_em_funcao_da_base = tam_divisao * tempo * bpm / 60
     return ALTURA_ACORDE - deslomento_em_funcao_da_base
 
-'''
-notas_verdade = [
-    ('verde', 0.2564 + 3, 0),
-    ('vermelho', 0.2564 * 2 + 3, 0),
-    ('verde', 0.2564 * 3 + 3, 0),
-    ('vermelho', 0.2564 * 4 + 3, 0),
-    ('verde', 0.2564 * 5 + 3, 0),
-    ('vermelho', 0.2564 * 6 + 3, 0),
-]
-'''
 
 tela: pygame.Surface = None     # noqa
 
@@ -182,10 +171,33 @@ def proximo_segundo(notas_tela, millis, altura_nota, bpm):
     pygame.display.flip()
 
 
-def main(notas_verdade, bateria=False, musica=None):
+def main(notas_verdade, using_bateria=False, using_guitarra=False, musica=None):
+    if using_guitarra:
+        from .comunicacao.guitarra.calibragemguitarra import calibrar_guitarra
+        from .comunicacao.guitarra.interfaceguitarra import InterfaceGuitarra
+        from serial import Serial
 
+        def callback(nota: NotaProcessada):
+            print(f"Recebi nota {nota.nome} [{nota.on}]")
+            remove_nota_tocada(notas_tela, nota.nome)
 
-    if bateria:
+        porta, range_considerado = calibrar_guitarra()
+        interface = InterfaceGuitarra(
+            serial_port=Serial(porta),
+            callback=callback,
+            rangen=range_considerado
+        )
+        interface.atribui_notas(
+            verde=1.0,
+            vermelho=2.0,
+            amarelo=3.0,
+            azul=4.0,
+            laranja=5.0
+        )
+        interface.start()
+    elif using_bateria:
+        from .comunicacao.bateria.calibragembateria import calibrar_bateria
+        from .comunicacao.bateria.interfacebateria import InterfaceBateria
         import mido
 
         def callback(nota: NotaProcessada):
