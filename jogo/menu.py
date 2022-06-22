@@ -28,8 +28,8 @@ class Menu:
         
         # imagem do jogo
         
-        iniciar_button = Button(root, text="Iniciar", command=lambda: print('bora'), width=20)
-        fechar_button = Button(root, text="Fechar", command=lambda: self.fechar_jogo(), width=20)
+        iniciar_button = Button(root, text="Iniciar", command=lambda: self._menu_escolhe_musica(), width=20)
+        fechar_button = Button(root, text="Fechar", command=lambda: self.fechar_menu(), width=20)
         
         
         iniciar_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7)
@@ -39,10 +39,16 @@ class Menu:
         root.mainloop()
     
     
-    def fechar_jogo(self):
+    def fechar_menu(self):
         """ fecha a partida atual """
         self._root.destroy() 
         exit(1)
+
+    def _menu_escolhe_musica(self):
+        root = Tk()
+        
+
+
         
 
 
