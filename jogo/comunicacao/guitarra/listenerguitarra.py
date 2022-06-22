@@ -91,12 +91,20 @@ class ListenerGuitarra(ListenerBase):
     def stop(self):
         """Para a captura da porta"""
         with self._lock:
-            pass
+            if self._running:
+                self._input_port.close()
+                self._running = False
+                self._thread.join()
+                self._thread = None
 
     def _loop(self):
         """Faz o loop de escuta da porta"""
         while self._running and self._input_port.is_open:
-            linha_bytes: bytes = self._input_port.readline()
+            try:
+                linha_bytes: bytes = self._input_port.readline()
+            except AttributeError:
+                break
+            print("LI UMA LINHA -> ", linha_bytes)
             # decodificacao dos bytes
             try:
                 linha: str = linha_bytes.decode()
@@ -109,13 +117,18 @@ class ListenerGuitarra(ListenerBase):
             if len(linha_lista) != 2:       # deve ter dois elementos
                 continue
             identificador_raw: str = linha_lista[0]
-            if not identificador_raw.isnumeric():   # deve ser numerico
+            # verificando se é float
+            try:
+                ret.codigo = float(identificador_raw)
+            except ValueError:
                 continue
-            ret.codigo = float(identificador_raw)
+
             pressionado_raw: str = linha_lista[1]
             if pressionado_raw not in ('1', '0'):   # deve ser um binario
                 continue
             ret.on = pressionado_raw.startswith('1')
+
+            print(ret)
 
             # processando de acordo com o buffer
             if self._nota_buffer is not None:
@@ -128,6 +141,8 @@ class ListenerGuitarra(ListenerBase):
             # atualiza o buffer
             self._nota_buffer = ret
 
+        print("LISTENER: fechando loop")
+
     def start(self):
         """Inicia a captura da porta"""
         if not self._running and self._thread is None:
@@ -135,11 +150,3 @@ class ListenerGuitarra(ListenerBase):
             self._thread = Thread(target=self._loop)
             self._thread.start()
             print("Iniciando thread")
-
-    def close(self):
-        """Fecha a porta de captura"""
-        if self._running:
-            with self._lock:
-                self._running = False
-                self._thread.join()
-                self._thread = None

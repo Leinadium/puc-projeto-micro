@@ -27,7 +27,7 @@ class Tabela:
         self._string_vars = [tkinter.StringVar() for _ in range(tamanho)]
         self._notas: List[int] = list()
         self._listener: ListenerBateria = ListenerBateria()
-        self._listener.register_callback(lambda n: self._callback(n))
+        self._listener.callback = lambda n: self._callback(n)
         self._buffer: Any = None
         self._callback_botao_final = None
 
@@ -49,7 +49,7 @@ class Tabela:
 
     def change_input_port(self, port: Input):
         """Troca a porta para ouvir"""
-        self._listener.set_input_port(port)
+        self._listener.input_port = port
 
     def _callback(self, nota: NotaBateria):
         """Comando executado pelo listener"""
@@ -110,7 +110,7 @@ lista_input_names: List[str] = mido.get_input_names()  # noqa
 input_combo_var = tkinter.StringVar()
 # http://tkdocs.com/tutorial/widgets.html#combobox
 inputs_combo = ttk.Combobox(mainframe, textvariable=input_combo_var)
-inputs_combo.grid(column=0, row=0, columnspan=5, sticky=[E, W])
+inputs_combo.grid(column=0, row=0, columnspan=5, sticky=[E, W])     # noqa
 inputs_combo['values'] = lista_input_names
 inputs_combo.state(['readonly'])
 

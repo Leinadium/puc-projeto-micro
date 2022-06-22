@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from .nota import Nota
-from .comunicacao.bateria.calibragem import calibrar_bateria
+from .comunicacao.bateria.calibragembateria import calibrar_bateria
 from .comunicacao.bateria.interfacebateria import InterfaceBateria, NotaProcessada
 
 LARGURA = 720
