@@ -1,100 +1,102 @@
 from tkinter import *
-from tkinter.ttk import *
-from tkinter.messagebox import *
-from tkinter import Menu
-from os import sep, path, isfile, join, listdir
+from tkinter.ttk import Combobox, Label
+from os import listdir
+from os.path import isfile, join
+from main import main
 
 class Menu:
-    _ALTURA = 400
+    _ALTURA = 380
     _LARGURA = 600
-    
+    _FONT = ('Space Mono', 18)
+
     def __init__(self):
-        self._root = None
-        self._canvas = None
-        self.musica_selecionada = None
-    
-    
-    def _cria_lista_notas_verdade(self, ):
-        
-    # def _
+        self._root: Tk
+        self._frame: Frame
+        self._musica_selecionada: str
+        self._musicas_possiveis: StringVar
+        self._instrumento_atual: StringVar
+        self._combo: Combobox
+        self._listbox: Listbox
+        self._instrumento_selecionado: str
+
+
+    def _seleciona_musica(self):
+
+        selecionada = self._listbox.curselection()
+
+        if selecionada != tuple():
+            self._musica_selecionada = self._listbox.get(selecionada)
+            #pegar o path, ler a lista, fechar menu
+
+    def _lista_musicas(self, instrumento: str):
+        self._instrumento_selecionado = instrumento
+
+        suffix = f"{instrumento.lower()}.txt"
+        if instrumento is not None:
+            self._musicas_possiveis.set('\n'.join([
+                f.removesuffix(suffix) for f in listdir('./musicas')
+                if isfile(join('./musicas', f)) and f.endswith(suffix)
+            ]))
+
+    def _combo_callback(self, event=None):
+        if event:
+            self._lista_musicas(self._instrumento_atual.get())
+
+    def _menu_selecao_instrumento(self):
+        self._frame.destroy()
+        frame = Frame(self._root, width=self._LARGURA, height=self._ALTURA, background='grey')
+        frame.grid(row=0, column=0, sticky='NW')
+
+        label = Label(frame, text="Escolha o seu instrumento e música", font=self._FONT, background='grey', foreground='black')
+        label.place(relx=0.5, rely=0.1, anchor=CENTER)
+
+        combo = Combobox(frame, state='readonly', width=30, font=16, textvariable=self._instrumento_atual)
+        combo['values'] = ('Guitarra', 'Bateria')
+        combo.current(0)
+        combo.bind("<<ComboboxSelected>>", self._combo_callback)
+        combo.place(relx=0.5, rely=0.2, anchor=CENTER)
+
+        self._combo = combo
+
+        list_box = Listbox(frame, selectmode="single", width=60)
+        list_box.grid(row=0, column=0, sticky="nwes")
+        list_box.place(relx=0.5, rely=0.5, anchor=CENTER)
+        list_box['listvariable'] = self._musicas_possiveis
+        self._listbox = list_box
+
+
+        confirmar_button = Button(frame, width=20, text="Confirmar", command=self._seleciona_musica)
+        confirmar_button.place(relx=0.5, rely=0.85, anchor=CENTER)
+
+
+        self._frame = frame
+
+
     def start(self):
         """ inicia uma nova partida """
-        root = Tk()
-        root.geometry("%sx%s" %(self._LARGURA, self._ALTURA))
-        root.title('Guitar Hero')
-        root.resizable(0, 0)
-        root.configure(background='grey')
-        
-        
-        canvas = Canvas(root, width=350, height=160, background='grey', highlightthickness=0)
-        canvas.pack()
-        
-        # imagem do jogo
-        
-        iniciar_button = Button(root, text="Iniciar", command=lambda: self._menu_escolhe_instrumento(), width=20)
-        fechar_button = Button(root, text="Fechar", command=lambda: self.fechar_menu(), width=20)
-        
-        
+        self._root = Tk()
+        self._root.geometry("%sx%s" %(self._LARGURA, self._ALTURA))
+        self._root.title('Guitar Hero')
+        self._root.resizable(False, False)
+        self._root.configure(background='grey')
+
+        self._musicas_possiveis = StringVar()
+        self._instrumento_atual = StringVar()
+
+        frame = Frame(self._root, background='grey')
+        frame.pack(expand=True, fill=BOTH)
+
+        iniciar_button = Button(frame, text="Iniciar", command=self._menu_selecao_instrumento, width=20)
         iniciar_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7)
-        fechar_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7 + 40)
-        
-        self._root = root
-        root.mainloop()
-    
-    
-    def fechar_menu(self):
-        """ fecha a partida atual """
-        self._root.destroy() 
 
-    def _menu_escolhe_instrumento(self):
-        
-        self.fechar_menu()
-        root = Tk()
-        root.geometry("%sx%s" %(self._LARGURA, self._ALTURA))
-        root.title('Escolha a musica')
-        root.resizable(0, 0)
-        root.configure(background='grey')
-        
-        canvas = Canvas(root, width=350, height=160, background='grey', highlightthickness=0)
-        canvas.pack()
-        
-        combo = Combobox(root, width=15, state="readonly", font=('Arial', '12', 'bold'))
-        confirmar_button = Button(root, text="Confirmar", command=lambda: self._escolhe_musica(combo.get()), width=20) 
-
-        combo['values'] = ["Guitarra", "Bateria"]
-        combo.current(0)
-        
-        combo.place(x=self._LARGURA / 2 - 85, y=self._ALTURA * 5 / 7 - 40)
-        confirmar_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7 + 40)
-        
-        self._root = root
-    
-    def _escolhe_musica(self, instrumento):
-        
-        self.fechar_menu()
-        print(instrumento)
-        root = Tk()
-        root.geometry("%sx%s" %(self._LARGURA, self._ALTURA))
-        root.title('Escolha a musica')
-        root.resizable(0, 0)
-        root.configure(background='grey')
-        
-        canvas = Canvas(root, width=350, height=160, background='grey', highlightthickness=0)
-        canvas.pack()
-        
-        combo = Combobox(root, width=15, state="readonly", font=('Arial', '12', 'bold'))
-        confirmar_button = Button(root, text="Confirmar", command=lambda: , width=20) 
-        
-    
-        
-        combo.place(x=self._LARGURA / 2 - 85, y=self._ALTURA * 5 / 7 - 40)
-        confirmar_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7 + 40)
-        
-        self._root = root
-        
-        
-        
+        self._frame = frame
+        self._root.mainloop()
 
 
-men = Menu()
-men.start()
+
+
+
+
+if __name__ == "__main__":
+    men = Menu()
+    men.start()
