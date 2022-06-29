@@ -1,0 +1,12 @@
+{
+  "cheia_de_manias": {
+    "nome": "Cheia de Manias - Raça Negra",
+    "bateria": "cheia_de_manias_bateria.txt",
+    "guitarra": "cheia_de_manias_guitarra.txt"
+  },
+  "velocidade_luz": {
+    "nome": "Velocidade da Luz - Grupo Revelação",
+    "bateria": "velocidade_luz_bateria.txt",
+    "guitarra": "velocidade_luz_guitarra.txt"
+  }
+}

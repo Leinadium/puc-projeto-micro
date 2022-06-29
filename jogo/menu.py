@@ -18,7 +18,6 @@ class Menu:
         self._listbox: Listbox
         self._instrumento_selecionado: str
 
-
     def _seleciona_musica(self):
 
         selecionada = self._listbox.curselection()
