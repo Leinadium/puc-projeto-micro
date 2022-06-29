@@ -11,4 +11,4 @@ if __name__ == "__main__":
         ('verde', 0.2564 * 5 + 3, 0),
         ('vermelho', 0.2564 * 6 + 3, 0),
     ]
-    main(notas_verdade, using_guitarra=True)
+    main(notas_verdade, using_guitarra=False)

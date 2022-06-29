@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter.ttk import Combobox, Label
 from os import listdir
 from os.path import isfile, join
-from main import main
 
 class Menu:
     _ALTURA = 380
@@ -27,6 +26,8 @@ class Menu:
         if selecionada != tuple():
             self._musica_selecionada = self._listbox.get(selecionada)
             #pegar o path, ler a lista, fechar menu
+
+
 
     def _lista_musicas(self, instrumento: str):
         self._instrumento_selecionado = instrumento

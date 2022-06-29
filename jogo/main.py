@@ -243,6 +243,10 @@ def main(notas_verdade, using_bateria=False, using_guitarra=False, musica=None):
 
     altura_de_uma_nota = ALTURA_ACORDE / 9
 
+    pygame.mixer.music.load('background.wav')
+    pygame.mixer.music.play(0)
+
+
     run = True
     clock = pygame.time.Clock()
     while run:
@@ -252,6 +256,9 @@ def main(notas_verdade, using_bateria=False, using_guitarra=False, musica=None):
                 run = False
                 pygame.quit()
                 break
+
+            # if event.type == SONG_END:
+
 
             if event.type == KEYDOWN:
                 if event.key == pygame.K_a:
