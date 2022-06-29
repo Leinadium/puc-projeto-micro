@@ -1,4 +1,3 @@
-from jogo.main import main
 
 if __name__ == "__main__":
     # notas_verdade = [
@@ -14,6 +13,7 @@ if __name__ == "__main__":
 
     a = Jogo(
         None,
-        'C:\\Users\\Daniel\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\Happy BirthdayBat.txt'
+        'C:\\Users\\Daniel\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\Happy BirthdayBat.txt',
+        'C:\\Users\\Daniel\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\parabens.mp3'
     )
     a.loop()

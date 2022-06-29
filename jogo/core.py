@@ -1,5 +1,5 @@
 # module imports
-from threading import Lock
+from threading import Lock, Timer
 
 # local imports
 import pygame
@@ -14,7 +14,7 @@ from .comunicacao.bateria.calibragembateria import calibrar_bateria
 from .comunicacao.bateria.interfacebateria import InterfaceBateria
 
 # typing imports
-from typing import Any, List, Optional
+from typing import List, Optional
 from .comunicacao.base import InterfaceBase
 
 
@@ -24,18 +24,22 @@ class Jogo:
 
     def __init__(self,
                  instrumento: Optional[Instrumento],
-                 musica: str
+                 musica_notas: str,
+                 musica_som: str
                  ):
         """Inicia uma instância do jogo
 
         Args:
             instrumento (Instrumento): tipo do instrumento escolhido
-            musica (str): path da música escolhida
+            musica_notas (str): path das notas da música escolhida
+            musica_som (str): path do audio da música escolhida
         """
         pygame.init()
 
-        self.musica = musica
-        self.bpm = 116
+        self.musica = musica_notas
+        self.bpm = -1
+        pygame.mixer.music.load(musica_som)
+
         self.tipo_instrumento = instrumento
         self.interface: Optional[InterfaceBase] = None
         self.tela: Optional[Tela] = Tela()
@@ -45,7 +49,7 @@ class Jogo:
         elif instrumento == Instrumento.GUITARRA:
             self._iniciar_guitarra()
 
-        self.notas = self._carregar_notas(musica)
+        self.notas = self._carregar_notas(musica_notas)
         self.lock = Lock()
         self.running = False
         self.musica_tocando = False
@@ -192,6 +196,8 @@ class Jogo:
     def loop(self):
         clock = pygame.time.Clock()
         self.running = True
+        pygame.mixer.music.play()
+
         while self.running:
             clock.tick(self.FPS)
             self.checa_eventos()

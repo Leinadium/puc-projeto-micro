@@ -1,4 +1,4 @@
-70
+140
 vermelho,1147.035
 vermelho,1426.034
 verde,1731.092
