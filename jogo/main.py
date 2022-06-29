@@ -246,19 +246,20 @@ def main(notas_verdade, using_bateria=False, using_guitarra=False, musica=None):
     pygame.mixer.music.load('background.wav')
     pygame.mixer.music.play(0)
 
-
     run = True
     clock = pygame.time.Clock()
     while run:
         clock.tick(FPS)
+
+        if not pygame.mixer.music.get_busy():
+            # musica acabou, o jogo acabou
+            pass
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 run = False
                 pygame.quit()
                 break
-
-            # if event.type == SONG_END:
-
 
             if event.type == KEYDOWN:
                 if event.key == pygame.K_a:
