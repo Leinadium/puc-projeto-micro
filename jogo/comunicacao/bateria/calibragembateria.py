@@ -6,7 +6,7 @@ from tkinter import ttk
 from .listenerbateria import ListenerBateria, NotaBateria
 
 # para typing
-from typing import Optional, List, Any
+from typing import Tuple, Optional, List, Any
 from mido.backends.rtmidi import Input
 
 
@@ -80,6 +80,10 @@ class Tabela:
     def get_notas(self):
         """Pega a lista de notas com os ids das notas midi"""
         return self._notas
+
+    def get_porta(self):
+        """Pega o nome da porta sendo usada"""
+        return self._listener.input_port.name
 
     def add_callback_pronto(self, callback):
         """Callback para o botao final
@@ -169,9 +173,15 @@ tabela.add_callback_pronto(
 )
 
 
-def calibrar_bateria():
+def calibrar_bateria() -> Optional[Tuple[list, str]]:
     root.mainloop()
 
     tabela.fechar()
-    return tabela.get_notas() if tabela.get_notas() else None
+
+    notas = tabela.get_notas()
+    porta = tabela.get_porta()
+
+    if notas is None:
+        return None
+    return notas, porta
 

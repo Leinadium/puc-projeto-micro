@@ -8,10 +8,7 @@ from .tela import Tela
 from .constants import *
 from .models.notas import NotaTela, NotaArquivo
 from .comunicacao.notaprocessada import NotaProcessada
-from .comunicacao.guitarra.calibragemguitarra import calibrar_guitarra
-from .comunicacao.guitarra.interfaceguitarra import InterfaceGuitarra
-from .comunicacao.bateria.calibragembateria import calibrar_bateria
-from .comunicacao.bateria.interfacebateria import InterfaceBateria
+
 
 # typing imports
 from typing import List, Optional
@@ -37,7 +34,7 @@ class Jogo:
         pygame.init()
 
         self.musica = musica_notas
-        self.bpm = -1
+        self.bpm = -1   # vai ser atribuido pelo self._carregar_notas
         pygame.mixer.music.load(musica_som)
 
         self.tipo_instrumento = instrumento
@@ -49,20 +46,29 @@ class Jogo:
         elif instrumento == Instrumento.GUITARRA:
             self._iniciar_guitarra()
 
+        # lista das notas da musica
         self.notas = self._carregar_notas(musica_notas)
-        self.lock = Lock()
+        self.lock = Lock()  # para evitar concorrencia
         self.running = False
         self.musica_tocando = False
+
+        # mapa de que notas estão sendo tocadas atualmente
+        self.inputs = {k: False for k in ORDEM_CORDAS.keys()}
 
     def _iniciar_bateria(self):
         """Faz as configurações relativas a bateria"""
         import mido
-        id_notas = calibrar_bateria()
+        from .comunicacao.bateria.calibragembateria import calibrar_bateria
+        from .comunicacao.bateria.interfacebateria import InterfaceBateria
+        try:
+            id_notas, porta = calibrar_bateria()
+        except TypeError:
+            print("Erro ao calibrar bateria (return None)")
+            return
 
         # inicializacao da interface
         self.interface = InterfaceBateria(
-            # TODO: adicionar porta correta
-            midi_port=mido.open_input('Circuit 0'),  # noqa
+            midi_port=mido.open_input(porta),  # noqa
             callback=lambda nota: self._callback_interface(nota)
         )
 
@@ -78,6 +84,8 @@ class Jogo:
     def _iniciar_guitarra(self):
         """Faz as configurações relativas a guitarra"""
         from serial import Serial
+        from .comunicacao.guitarra.calibragemguitarra import calibrar_guitarra
+        from .comunicacao.guitarra.interfaceguitarra import InterfaceGuitarra
         porta, range_considerado = calibrar_guitarra()
 
         # inicializacao da interface
@@ -110,6 +118,7 @@ class Jogo:
 
         except Exception as e:
             print(e)
+            print("Carregando notas mockadas")
             notas_carregadas: List[NotaArquivo] = [
                 NotaArquivo('verde', 0.2564 + 3, 0),
                 NotaArquivo('vermelho', 0.2564 * 2 + 3, 0),
@@ -119,20 +128,26 @@ class Jogo:
                 NotaArquivo('vermelho', 0.2564 * 6 + 3, 0),
             ]
 
-        return [NotaTela.from_nota_arquivo(
-            nota=nota,
-            comprimento_acorde=self.tela.ALTURA_ACORDE,
-            comprimento_divisao=self.tela.ALTURA_NOTA,
-            bpm=self.bpm
-        ) for nota in notas_carregadas]
+        return [
+            NotaTela.from_nota_arquivo(
+                nota=nota,
+                comprimento_acorde=self.tela.ALTURA_ACORDE,
+                comprimento_divisao=self.tela.ALTURA_NOTA,
+                bpm=self.bpm
+            ) for nota in notas_carregadas
+        ]
 
-    def _callback_interface(self, nota: NotaProcessada):  # noqa
+    def _callback_interface(self, nota: NotaProcessada):
         # pegando o id da nota pelo nome
         try:
-            cor_nota_tocada = MAPA_NOME_NOTAS[nota.nome]
+            cor_nota_tocada: Cor = MAPA_NOME_NOTAS[nota.nome]
         except ValueError:
             print("Nota invalida (valor invalido): ", nota)
             return
+
+        # salva nos inputs
+        self.inputs[cor_nota_tocada] = nota.on
+
         # altera o valor na lista
         try:
             nova_lista = list()
@@ -175,7 +190,7 @@ class Jogo:
                     self._callback_interface(NotaProcessada('nota5', event.type == pygame.KEYDOWN))
 
     def update(self):
-        self.tela.desenha()
+        self.tela.desenha(self.inputs)
 
         # movendo as notas
         nova_lista: List[NotaTela] = list()
@@ -187,7 +202,7 @@ class Jogo:
                 if nota.posicao > self.tela.LIMITE_ATRASADO:
                     print('Errou: ', nota)
                 else:
-                    self.tela.desenha_nota(nota)
+                    self.tela.desenha_nota(nota.cor, nota.posicao)
                     nova_lista.append(nota)
 
         pygame.display.flip()
@@ -196,7 +211,7 @@ class Jogo:
     def loop(self):
         clock = pygame.time.Clock()
         self.running = True
-        pygame.mixer.music.play()
+        # pygame.mixer.music.play()
 
         while self.running:
             clock.tick(self.FPS)
