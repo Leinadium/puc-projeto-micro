@@ -3,7 +3,7 @@ from ..base import InterfaceBase
 from ..notaprocessada import NotaProcessada
 from mido.backends.rtmidi import Input
 
-from typing import Callable
+from typing import Callable, Any
 
 __all__ = ['InterfaceBateria']
 
@@ -31,6 +31,10 @@ class InterfaceBateria(InterfaceBase):
                     on=nota.on
                 )
             )
+
+    def send_notification(self, notification: Any):
+        """Envia a notificacao pra bateria"""
+        raise NotImplemented()
 
     def start(self):
         """Inicializa a captura de notas.

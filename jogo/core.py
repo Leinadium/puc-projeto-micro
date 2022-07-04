@@ -8,6 +8,7 @@ from .tela import Tela
 from .constants import *
 from .models.notas import NotaTela, NotaArquivo
 from .comunicacao.notaprocessada import NotaProcessada
+from .comunicacao.notificacao import Notificacao
 
 
 # typing imports
@@ -155,16 +156,17 @@ class Jogo:
                 if (cor_nota_tocada == nota_lista.cor
                         and self.tela.LIMITE_ADIANTADO <= nota_lista.posicao <= self.tela.LIMITE_ATRASADO
                         and nota.on):
-                    print("Acertou!")
+                    # ACERTOU!
+                    self.parse_acerto(
+                        cor=cor_nota_tocada
+                    )
+
                 else:
                     nova_lista.append(nota_lista)
             self.notas = nova_lista
 
         except IndexError:
             print("Nota invalida (indice invalido): ", nota)
-
-    def _feedback_interface(self):
-        pass
 
     def checa_eventos(self):
         """Checa os eventos do pygame"""
@@ -189,6 +191,32 @@ class Jogo:
                 if event.key == pygame.K_g:
                     self._callback_interface(NotaProcessada('nota5', event.type == pygame.KEYDOWN))
 
+    def parse_acerto(self, cor: Cor):
+        """Faz as operações relativas ao acerto de uma nota"""
+        id_nota: int = ORDEM_CORDAS[cor] + 1
+        # feedback pra guitarra
+        if self.tipo_instrumento == Instrumento.GUITARRA:
+            self.interface.send_notification(
+                Notificacao(nota=id_nota, valor=True)
+            )
+
+        # TODO: pontuacao
+        print(f"Acertou! [cor: {cor}]")
+        return
+
+    def parse_erro(self, cor: Cor):
+        """Faz as operações relativas ao erro de uma nota"""
+        id_nota: int = ORDEM_CORDAS[cor] + 1
+        # feedback pra guitarra
+        if self.tipo_instrumento == Instrumento.GUITARRA:
+            self.interface.send_notification(
+                Notificacao(nota=id_nota, valor=False)
+            )
+
+        # TODO: pontuacao
+        print(f"Errou! [cor: {cor}]")
+        return
+
     def update(self):
         self.tela.desenha(self.inputs)
 
@@ -200,7 +228,9 @@ class Jogo:
                 nota.posicao += self.MILLIS / 1000 * self.tela.ALTURA_NOTA * self.bpm / 60
 
                 if nota.posicao > self.tela.LIMITE_ATRASADO:
-                    print('Errou: ', nota)
+                    # ERROU
+                    self.parse_erro(nota.cor)
+
                 else:
                     self.tela.desenha_nota(nota.cor, nota.posicao)
                     nova_lista.append(nota)

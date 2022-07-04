@@ -2,6 +2,7 @@ from serial import Serial
 from threading import Lock, Thread
 from dataclasses import dataclass
 from ..base import ListenerBase
+from ..notificacao import Notificacao
 
 from typing import Optional, List, Callable
 
@@ -36,6 +37,9 @@ class ListenerGuitarra(ListenerBase):
         self._thread: Optional[Thread] = None
         # para o buffer
         self._nota_buffer: Optional[NotaGuitarra] = None
+        # para o buffer de notificacoes
+        self._notificacao_lock: Lock = Lock()
+        self._notificacao_buffer: List[Notificacao] = list()
 
     @property
     def range(self):
@@ -96,6 +100,22 @@ class ListenerGuitarra(ListenerBase):
                 self._thread.join()
                 self._thread = None
 
+    def append_notification(self, notificacao: Notificacao):
+        """Adiciona uma notificação para ser enviada após a próxima
+        mensagem recebida pela porta."""
+        with self._notificacao_lock:
+            self._notificacao_buffer.append(notificacao)
+
+    def _parse_notifications(self):
+        """Envia as notificacoes pela porta"""
+        with self._notificacao_lock:
+            for nf in self._notificacao_buffer:
+                self._input_port.write(
+                    f"{'1' if nf.valor else '0'};{nf.nota}"
+                )
+            # limpa o buffer
+            self._notificacao_buffer.clear()
+
     def _loop(self):
         """Faz o loop de escuta da porta"""
         while self._running and self._input_port.is_open:
@@ -143,6 +163,14 @@ class ListenerGuitarra(ListenerBase):
             # atualiza o buffer
             self._nota_buffer = ret
 
+            # verificando notificacoes
+            with self._notificacao_lock:
+                verificar_buffer = bool(self._notificacao_buffer)
+
+            # (fora do "with:" para liberar o lock)
+            if verificar_buffer:
+                self._parse_notifications()
+
         print("LISTENER: fechando loop")
 
     def start(self):
@@ -153,6 +181,11 @@ class ListenerGuitarra(ListenerBase):
             self._thread = Thread(target=self._loop)
             self._thread.start()
             print("Iniciando thread")
+
+    @property
+    def running(self):
+        """Diz se a porta está sendo executada ou não"""
+        return self._running
 
     def close(self):
         if self._input_port.is_open:

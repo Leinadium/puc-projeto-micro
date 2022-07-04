@@ -1,6 +1,7 @@
 from .listenerguitarra import ListenerGuitarra, NotaGuitarra
 from ..base import InterfaceBase
 from ..notaprocessada import NotaProcessada
+from ..notificacao import Notificacao
 
 from typing import Callable, List
 from serial import Serial
@@ -49,6 +50,20 @@ class InterfaceGuitarra(InterfaceBase):
                         on=nota.on
                     )
                 )
+
+    def send_notification(self, notificacao: Notificacao):
+        """Envia uma notificação pra guitarra do acerto/erro de uma nota
+
+        Essa operação não pode ser feita de modo assíncrono, logo é necessário
+        que a guitarra envie alguma mensagem pela interface para que a notificação
+        seja enviada em seguida.
+
+        Caso a interface não esteja capturando notas, levanta RuntimeError
+        """
+        if not self._listener.running:
+            raise RuntimeError("Listener não foi executado. É necessário executar .start() antes")
+
+        self._listener.append_notification(notificacao)
 
     def start(self):
         """Inicializa a captura das notas

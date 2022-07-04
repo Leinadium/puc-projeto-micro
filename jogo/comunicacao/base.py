@@ -1,6 +1,8 @@
 from abc import ABC
 from abc import abstractmethod
 
+from .notificacao import Notificacao
+
 
 class ListenerBase(ABC):
     """Classe base para as implementações do Listener"""
@@ -49,6 +51,10 @@ class InterfaceBase(ABC):
         self._dicionario.clear()
         for k, v in kwargs.items():
             self._dicionario[int(v)] = str(k)
+
+    @abstractmethod
+    def send_notification(self, notification: Notificacao):
+        pass
 
     @abstractmethod
     def start(self):
