@@ -1,5 +1,5 @@
 # module imports
-from threading import Lock, Timer
+from threading import Lock
 
 # local imports
 import pygame

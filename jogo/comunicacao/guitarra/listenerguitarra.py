@@ -110,9 +110,9 @@ class ListenerGuitarra(ListenerBase):
         """Envia as notificacoes pela porta"""
         with self._notificacao_lock:
             for nf in self._notificacao_buffer:
-                self._input_port.write(
-                    f"{'1' if nf.valor else '0'};{nf.nota}"
-                )
+                texto = f"{'1' if nf.valor else '0'};{nf.nota}\n"
+                self._input_port.write(texto.encode())
+                print(f"[LISTENER] enviado texto: {texto}")
             # limpa o buffer
             self._notificacao_buffer.clear()
 
@@ -165,7 +165,7 @@ class ListenerGuitarra(ListenerBase):
 
             # verificando notificacoes
             with self._notificacao_lock:
-                verificar_buffer = bool(self._notificacao_buffer)
+                verificar_buffer = len(self._notificacao_buffer) > 0
 
             # (fora do "with:" para liberar o lock)
             if verificar_buffer:
