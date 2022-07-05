@@ -19,7 +19,7 @@ from .comunicacao.base import InterfaceBase
 
 class Jogo:
     FPS = 30
-    PONTUACAO_MINIMA = 1
+    PONTUACAO_MINIMA = 5
     MILLIS = 1 / FPS * 1000
 
     def __init__(self,
@@ -122,7 +122,11 @@ class Jogo:
                     linha_lista = linha.strip().split(',')
                     cor = linha_lista[0]                        # cor da nota
                     tempo = float(linha_lista[1]) / 1000        # tempo da nota
-                    duracao = float(linha_lista[2]) if len(linha_lista) == 3 else 0     # duracao
+                    duracao = float(linha_lista[2]) / 1000 if len(linha_lista) == 3 else 0     # duracao
+
+                    if duracao < 0.200:
+                        duracao = 0
+
                     notas_carregadas.append(NotaArquivo(cor, tempo, duracao))
 
         except Exception as e:
@@ -161,16 +165,36 @@ class Jogo:
         try:
             nova_lista = list()
             for nota_lista in self.notas:
-                if (cor_nota_tocada == nota_lista.cor
-                        and self.tela.LIMITE_ADIANTADO <= nota_lista.posicao <= self.tela.LIMITE_ATRASADO
-                        and nota.on):
-                    # ACERTOU!
-                    self.parse_acerto(
-                        cor=cor_nota_tocada
-                    )
+                # if (
+                #         cor_nota_tocada == nota_lista.cor       # cor correta
+                #         and self.tela.LIMITE_ADIANTADO <= nota_lista.posicao <= self.tela.LIMITE_ATRASADO   # tempo
+                # ):
+                #     if (nota.on and nota_lista.extensao == 0) or (not nota.on and nota_lista.extensao > 0):
+                #         # ACERTOU!
+                #         self.parse_acerto(
+                #             cor=cor_nota_tocada
+                #         )
+                #
+                # else:
+                #     nova_lista.append(nota_lista)
 
-                else:
+                pode_remover = False
+                if cor_nota_tocada == nota_lista.cor:       # cor correta
+                    # se a nota foi pressionada no tempo correto
+                    if self.tela.LIMITE_ADIANTADO <= nota_lista.posicao <= self.tela.LIMITE_ATRASADO and nota.on:
+                        self.parse_acerto(cor_nota_tocada)
+                        pode_remover = nota_lista.extensao == 0     # so remove se nao tem extensao
+
+                    # se passou do tempo, mas é uma nota extendida, verifica tbm
+                    elif nota_lista.extensao > 0:
+                        pos = nota_lista.posicao - nota_lista.extensao
+                        if self.tela.LIMITE_ADIANTADO <= pos <= self.tela.LIMITE_ATRASADO and not nota.on:
+                            self.parse_acerto(cor_nota_tocada)
+                            pode_remover = True
+
+                if not pode_remover:
                     nova_lista.append(nota_lista)
+
             self.notas = nova_lista
 
         except IndexError:
@@ -265,12 +289,15 @@ class Jogo:
             for nota in self.notas:
                 nota.posicao += self.MILLIS / 1000 * self.tela.ALTURA_NOTA * self.bpm / 60
 
-                if nota.posicao > self.tela.LIMITE_ATRASADO:
+                if nota.posicao - nota.extensao - self.tela.ALTURA_NOTA > self.tela.LIMITE_ATRASADO:
                     # ERROU
                     self.parse_erro(nota.cor)
 
                 else:
-                    self.tela.desenha_nota(nota.cor, nota.posicao)
+                    if nota.extensao > 0:
+                        self.tela.desenha_nota_extendida(nota.cor, nota.posicao, nota.extensao)
+                    else:
+                        self.tela.desenha_nota(nota.cor, nota.posicao)
                     nova_lista.append(nota)
 
         pygame.display.flip()

@@ -4,7 +4,7 @@ from random import randint
 from .constants import *
 from .models.sprites import Sprite, TipoSprite
 
-from typing import List
+from typing import List, Optional
 from pygame.surface import Surface
 
 
@@ -38,7 +38,15 @@ class Tela:
         self.sprites: List[Sprite] = list()
         self.texto_erro: Surface = self.font.render('X', False, MAPA_CORES[Cor.VERMELHO])
 
-    def desenha_nota(self, cor: Cor, posicao: float, raio=None, cor_branca=False):
+    def desenha_nota(self,
+                     cor: Cor,
+                     posicao: float,
+                     raio: Optional[float] = None,
+                     transparente: bool = False,
+                     cor_branca: Optional[bool] = False,
+                     borda_inferior: bool = True,
+                     borda_superior: bool = True,
+                     ):
         """Desenha uma nota na tela
 
         Se raio for None, utiliza o tamanho do raio padrao
@@ -48,7 +56,12 @@ class Tela:
         if raio is None:
             raio = self.RAIO_ACORDE
 
-        # borda
+        if transparente:
+            cor_rgba = MAPA_CORES[cor][0], MAPA_CORES[cor][1], MAPA_CORES[cor][2], 0.5
+        else:
+            cor_rgba = MAPA_CORES[cor if not cor_branca else Cor.BRANCO]
+
+        # BORDA
         pygame.draw.circle(
             self._tela,                 # surface
             MAPA_CORES[Cor.PRETO],      # preto
@@ -57,17 +70,61 @@ class Tela:
                 posicao                 # y
             ),
             raio + 3,        # raio da borda
-            width=3
+            width=3,
+            draw_top_left=borda_superior,
+            draw_top_right=borda_superior,
+            draw_bottom_left=borda_inferior,
+            draw_bottom_right=borda_inferior
         )
+        # NOTA
         pygame.draw.circle(
             self._tela,
-            MAPA_CORES[cor if not cor_branca else Cor.BRANCO],
+            cor_rgba,
             (
                 MAPA_POSICOES[cor],     # x
                 posicao                 # y
             ),
-            raio      # raio da borda
+            raio,     # raio da borda,
         )
+
+    def desenha_nota_extendida(self,
+                               cor: Cor,
+                               posicao: float,
+                               extensao: float,
+                               ):
+        """Desenha uma nota extendida na tela
+
+        Extensão é o comprimento da extensao em pixels
+        """
+        posicao_deslocada = posicao - extensao
+
+        # desenha um retangulo
+        pygame.draw.rect(
+            self._tela,
+            MAPA_CORES[cor],
+            (
+                MAPA_POSICOES[cor] - self.RAIO_ACORDE,
+                posicao_deslocada,
+                self.RAIO_ACORDE * 2,
+                extensao
+            )
+        )
+
+        # desenha a borda
+        pygame.draw.rect(
+            self._tela,
+            MAPA_CORES[cor.PRETO],
+            (
+                MAPA_POSICOES[cor] - self.RAIO_ACORDE - 3,
+                posicao_deslocada - 3,
+                (self.RAIO_ACORDE + 3) * 2,
+                extensao + 3
+            ),
+            width=3
+        )
+
+        self.desenha_nota(cor, posicao, borda_inferior=True, borda_superior=True)
+        self.desenha_nota(cor, posicao_deslocada, borda_inferior=False, borda_superior=True)
 
     def adiciona_sprite(self, sp: Sprite):
         """Adiciona um sprite para ser desenhado"""
@@ -137,7 +194,8 @@ class Tela:
                 cor,
                 self.ALTURA_ACORDE,
                 raio=self.RAIO_ACORDE + 5,
-                cor_branca=inputs[cor]
+                cor_branca=inputs[cor],
+                transparente=False
             )
 
         self.desenha_sprites()
@@ -151,4 +209,3 @@ class Tela:
             self.font.render(f'x{multiplicador}', False, MAPA_CORES[Cor.AZUL]),
             (20, 90)
         )
-

@@ -10,18 +10,18 @@ class NotaArquivo:
 
 
 class NotaTela:
-    def __init__(self, cor: Cor, posicao: float, tempo_pressionado: float):
+    def __init__(self, cor: Cor, posicao: float, extensao: float):
         """Inicia uma nota da tela
 
         Atribui a cor, posicao e o tempo que a nota deve ficar pressionada
         """
         self.cor = cor
         self.posicao = posicao
-        self.tempo_pressionado = tempo_pressionado
+        self.extensao = extensao
         self.corda = ORDEM_CORDAS[cor]
 
     def __repr__(self):
-        return f'<NotaTela cor={self.cor} posicao={self.posicao} tp={self.tempo_pressionado}>'
+        return f'<NotaTela cor={self.cor} posicao={self.posicao} ex={self.extensao}>'
 
     @staticmethod
     def from_nota_arquivo(nota: NotaArquivo,
@@ -54,5 +54,5 @@ class NotaTela:
         return NotaTela(
             cor=cor,
             posicao=comprimento_acorde - (comprimento_divisao * nota.seg * bpm / 60),
-            tempo_pressionado=nota.press
+            extensao=comprimento_divisao * nota.press * bpm / 60
         )

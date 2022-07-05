@@ -19,4 +19,3 @@ class Sprite:
     pos_y: float = field(init=False)      # coordenada y
     alpha: int = field(init=False)      # transparencia da cor
     ttl: int = field(init=False)        # time to live
-
