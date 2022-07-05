@@ -381,6 +381,15 @@ botao1 = tk.Button(janela, text="Criar musica na Guitarra", command=criar_musica
 botao1.place(x=15, y=180)
 
 
+def enviarMusicaBat():
+    global arq
+    for nota in listaNotas:
+        linha = str(nota[0]) + ',' + str(nota[1]) + '\n'
+        arq.write(linha)
+    arq.close()
+    return
+
+
 # botao criar nova musica bateria
 def criar_musica_bateria():
     global arq
@@ -397,7 +406,7 @@ def criar_musica_bateria():
     arq.write(linha)
     nome_arq = nomeBat + ".mp3"
     if nomeBat in lista_audios:
-        nome_arq = nomeGuit + ".mp3"
+        nome_arq = nomeBat + ".mp3"
         pygame.mixer.music.load(nome_arq)
         pygame.mixer.music.play()
         labelMusica = tk.Label(janela, text='Musica encontrada')
@@ -421,7 +430,7 @@ def criar_musica_bateria():
     botaoLar = tk.Button(janela, text='  T  ', bg='#ffa500')
     botaoLar.bind("<ButtonPress>", laranja_Aperta)
     botaoLar.place(x=290, y=180)
-    botaoEnd = tk.Button(janela, text='Concluir Gravacao', command=enviarMusica)
+    botaoEnd = tk.Button(janela, text='Concluir Gravacao', command=enviarMusicaBat)
     botaoEnd.place(x=350, y=180)
 
     botaoOuvir = tk.Button(janela, text="Reproduzir", command=reproduzBat)
