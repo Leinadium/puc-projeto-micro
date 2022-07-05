@@ -7,6 +7,7 @@ import pygame
 from .tela import Tela
 from .constants import *
 from .models.notas import NotaTela, NotaArquivo
+from .models.sprites import Sprite, TipoSprite
 from .comunicacao.notaprocessada import NotaProcessada
 from .comunicacao.notificacao import Notificacao
 
@@ -18,6 +19,7 @@ from .comunicacao.base import InterfaceBase
 
 class Jogo:
     FPS = 30
+    PONTUACAO_MINIMA = 1
     MILLIS = 1 / FPS * 1000
 
     def __init__(self,
@@ -55,6 +57,12 @@ class Jogo:
 
         # mapa de que notas estão sendo tocadas atualmente
         self.inputs = {k: False for k in ORDEM_CORDAS.keys()}
+
+        # pontuacao
+        self.pontuacao: int = 0
+        self.multiplicador: int = 0
+        self.notas_seguidas: int = 0
+        self.buffer_acerto: bool = False
 
     def _iniciar_bateria(self):
         """Faz as configurações relativas a bateria"""
@@ -200,7 +208,24 @@ class Jogo:
                 Notificacao(nota=id_nota, valor=True)
             )
 
-        # TODO: pontuacao
+        # multiplicador
+        multiplicador_adicionado = False
+        if self.notas_seguidas >= 10 and self.multiplicador <= 3:
+            multiplicador_adicionado = True
+            self.multiplicador += 1
+            self.notas_seguidas = 0
+        else:
+            self.notas_seguidas += 1
+
+        # pontuacao
+        ponto_ganho = int(self.PONTUACAO_MINIMA * self.multiplicador)
+        self.pontuacao += ponto_ganho
+        self.tela.adiciona_sprite(
+            Sprite(
+                tipo=TipoSprite.MULTIPLICADOR if multiplicador_adicionado else TipoSprite.ACERTO,
+                valor=self.multiplicador if multiplicador_adicionado else ponto_ganho
+            )
+        )
         print(f"Acertou! [cor: {cor}]")
         return
 
@@ -213,12 +238,25 @@ class Jogo:
                 Notificacao(nota=id_nota, valor=False)
             )
 
-        # TODO: pontuacao
+        self.notas_seguidas = 0
+        self.multiplicador = 1
+
+        self.tela.adiciona_sprite(
+            Sprite(
+                tipo=TipoSprite.ERRO,
+                valor=None
+            )
+        )
+
         print(f"Errou! [cor: {cor}]")
         return
 
     def update(self):
-        self.tela.desenha(self.inputs)
+        self.tela.desenha(
+            inputs=self.inputs,
+            pontuacao=self.pontuacao,
+            multiplicador=self.multiplicador
+        )
 
         # movendo as notas
         nova_lista: List[NotaTela] = list()
@@ -241,6 +279,7 @@ class Jogo:
     def loop(self):
         clock = pygame.time.Clock()
         self.running = True
+        self.multiplicador = 1
         # pygame.mixer.music.play()
 
         while self.running:

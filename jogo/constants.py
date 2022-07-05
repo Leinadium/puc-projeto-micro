@@ -12,6 +12,10 @@ class Cor(Enum):
     BRANCO = 7
 
 
+def cor_com_alpha(cor: Cor, alpha: float):
+    return MAPA_CORES[cor][0], MAPA_CORES[cor][1], MAPA_CORES[cor][2], alpha
+
+
 class Instrumento(Enum):
     BATERIA = 1
     GUITARRA = 2
