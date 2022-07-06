@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from ..base import ListenerBase
 from ..notificacao import Notificacao
 
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Dict
 
 __all__ = ['NotaGuitarra', 'ListenerGuitarra']
 
@@ -37,6 +37,7 @@ class ListenerGuitarra(ListenerBase):
         self._thread: Optional[Thread] = None
         # para o buffer
         self._nota_buffer: Optional[NotaGuitarra] = None
+        self._notas_buffer: Dict[int, bool] = dict()
         # para o buffer de notificacoes
         self._notificacao_lock: Lock = Lock()
         self._notificacao_buffer: List[Notificacao] = list()
@@ -151,27 +152,45 @@ class ListenerGuitarra(ListenerBase):
             ret.on = pressionado_raw.startswith('1')
 
             # print(ret)
-
             # processando de acordo com o buffer
-            if self._nota_buffer is not None:
-                # verificando se esta no range e inverteu o sinal
-                if abs(self._nota_buffer.codigo - ret.codigo) < self._range:
-                    if self._nota_buffer.on != ret.on:
-                        # envia a nota afinal
-                        for c in self._callbacks:
-                            c(ret)
+            # if self._nota_buffer is not None:
+            #     # verificando se esta no range e inverteu o sinal
+            #     if abs(self._nota_buffer.codigo - ret.codigo) < self._range:
+            #         if self._nota_buffer.on != ret.on:
+            #             # envia a nota afinal
+            #             for c in self._callbacks:
+            #                 c(ret)
+            #
+            #             self._nota_buffer = ret     # se eu troquei a nota
+            #         else:
+            #             pass                        # se a nota ta parecida
+            #     else:
+            #         self._nota_buffer = ret         # se a nota foi longe
+            # else:
+            #     self._nota_buffer = ret             # se era none
 
-                        self._nota_buffer = ret     # se eu troquei a nota
-                    else:
-                        pass                        # se a nota ta parecida
+            # acha a nota original
+            nota_original = round(ret.codigo)
+            # verifica se não passou do limite
+            if abs(ret.codigo - nota_original) < self._range:
+                # iterando sobre o buffer inteiro
+                if nota_original not in self._notas_buffer:
+                    self._notas_buffer[nota_original] = ret.on
                 else:
-                    self._nota_buffer = ret         # se a nota foi longe
-            else:
-                self._nota_buffer = ret             # se era none
-
-            # verificando notificacoes
-            with self._notificacao_lock:
-                verificar_buffer = len(self._notificacao_buffer) > 0
+                    for k, v in self._notas_buffer.items():
+                        if k == nota_original:
+                            if v != ret.on:
+                                # envia
+                                for c in self._callbacks:
+                                    c(ret)
+                            self._notas_buffer[k] = ret.on
+                        elif v:
+                            for c in self._callbacks:
+                                c(NotaGuitarra(k, False))
+                            self._notas_buffer[k] = False
+                # verificando notificacoes
+                with self._notificacao_lock:
+                    verificar_buffer = len(self._notificacao_buffer) > 0
 
             # (fora do "with:" para liberar o lock)
             if verificar_buffer:
