@@ -165,19 +165,6 @@ class Jogo:
         try:
             nova_lista = list()
             for nota_lista in self.notas:
-                # if (
-                #         cor_nota_tocada == nota_lista.cor       # cor correta
-                #         and self.tela.LIMITE_ADIANTADO <= nota_lista.posicao <= self.tela.LIMITE_ATRASADO   # tempo
-                # ):
-                #     if (nota.on and nota_lista.extensao == 0) or (not nota.on and nota_lista.extensao > 0):
-                #         # ACERTOU!
-                #         self.parse_acerto(
-                #             cor=cor_nota_tocada
-                #         )
-                #
-                # else:
-                #     nova_lista.append(nota_lista)
-
                 pode_remover = False
                 if cor_nota_tocada == nota_lista.cor:       # cor correta
                     # se a nota foi pressionada no tempo correto
