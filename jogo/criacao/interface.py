@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from pynput import keyboard
 import pygame
 
+
+
 global inicio_musica
 global arq
 global listaNotas

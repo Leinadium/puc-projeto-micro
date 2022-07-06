@@ -1,12 +1,17 @@
+import tkinter
 from tkinter import *
 from tkinter.ttk import Combobox, Label
 from os import listdir
 from os.path import isfile, join
 
+from PIL import ImageTk, Image
+
+
 class Menu:
     _ALTURA = 380
     _LARGURA = 600
-    _FONT = ('Space Mono', 18)
+    _FONT = ('Helvetica', 18)
+
 
     def __init__(self):
         self._root: Tk
@@ -86,8 +91,23 @@ class Menu:
         frame = Frame(self._root, background='grey')
         frame.pack(expand=True, fill=BOTH)
 
+        img_raw = Image.open("GuitarHero.png")
+        img_resized = img_raw.resize((1844, 1256), Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(img_resized)
+
+
+        label = Label(frame,image=img, background='white')
+        label.place(x=-550, y=-200)
+
+
         iniciar_button = Button(frame, text="Iniciar", command=self._menu_selecao_instrumento, width=20)
         iniciar_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7)
+
+
+        criar_musica_button = Button(frame, text="Cria uma música", command=lambda : print('chama a interface'), width=20)
+        criar_musica_button.place(x=self._LARGURA / 2 - 70, y=self._ALTURA * 5 / 7  + 40)
+
+
 
         self._frame = frame
         self._root.mainloop()
