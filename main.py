@@ -5,7 +5,7 @@ if __name__ == "__main__":
 
     a = Jogo(
         Instrumento.GUITARRA,
-        'C:\\Users\\Daniel\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\Parabens pra voceGuit.txt',
+        'C:\\Users\\Daniel\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\Parabens_pra_voceguitarra.txt',
         'C:\\Users\\Daniel\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\parabens.mp3'
     )
     a.loop()

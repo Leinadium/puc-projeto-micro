@@ -110,7 +110,7 @@ class ListenerGuitarra(ListenerBase):
         """Envia as notificacoes pela porta"""
         with self._notificacao_lock:
             for nf in self._notificacao_buffer:
-                texto = f"{'1' if nf.valor else '0'};{nf.nota}\n"
+                texto = f"{'1' if nf.valor else '0'};{6 - nf.nota}\n"
                 self._input_port.write(texto.encode())
                 print(f"[LISTENER] enviado texto: {texto}")
             # limpa o buffer
@@ -155,12 +155,19 @@ class ListenerGuitarra(ListenerBase):
             # processando de acordo com o buffer
             if self._nota_buffer is not None:
                 # verificando se esta no range e inverteu o sinal
-                if abs(self._nota_buffer.codigo - ret.codigo) < self._range and self._nota_buffer.on != ret.on:
-                    # envia a nota afinal
-                    for c in self._callbacks:
-                        c(ret)
-            # atualiza o buffer
-            self._nota_buffer = ret
+                if abs(self._nota_buffer.codigo - ret.codigo) < self._range:
+                    if self._nota_buffer.on != ret.on:
+                        # envia a nota afinal
+                        for c in self._callbacks:
+                            c(ret)
+
+                        self._nota_buffer = ret     # se eu troquei a nota
+                    else:
+                        pass                        # se a nota ta parecida
+                else:
+                    self._nota_buffer = ret         # se a nota foi longe
+            else:
+                self._nota_buffer = ret             # se era none
 
             # verificando notificacoes
             with self._notificacao_lock:

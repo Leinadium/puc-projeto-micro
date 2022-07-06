@@ -277,7 +277,7 @@ class Jogo:
             for nota in self.notas:
                 nota.posicao += self.MILLIS / 1000 * self.tela.ALTURA_NOTA * self.bpm / 60
 
-                if nota.posicao - nota.extensao - self.tela.ALTURA_NOTA > self.tela.LIMITE_ATRASADO:
+                if nota.posicao - nota.extensao - self.tela.ALTURA_NOTA + 5 > self.tela.LIMITE_ATRASADO:
                     # ERROU
                     self.parse_erro(nota.cor)
 
