@@ -12,8 +12,6 @@ global intervalo_pause
 global bateria
 global lista_audios
 
-bateria = False
-
 listaNotas = []
 
 intervalo_pause = 0
@@ -224,7 +222,7 @@ def enviarMusica():
         print(nota)
         if nota[0] == listaNotas[i + 1][0]:
             intervalo = listaNotas[i + 1][1] - nota[1]
-            if intervalo >= 200:
+            if intervalo >= 250:
                 linha = str(nota[0]) + ',' + str(nota[1]) + ',' + str(intervalo) + '\n'
                 arq.write(linha)
                 i += 1
@@ -353,19 +351,19 @@ def criar_musica_guitarra():
     botaoVerm = tk.Button(janela, text='    ', bg='#ff0000')
     botaoVerm.bind("<ButtonPress>", vermelho_Aperta)
     botaoVerm.bind("<ButtonRelease>", vermelho_Solta)
-    botaoVerm.place(x=170, y=180)
+    botaoVerm.place(x=200, y=180)
     botaoVerd = tk.Button(janela, text='    ', bg='#00ff00')
     botaoVerd.bind("<ButtonPress>", verde_Aperta)
     botaoVerd.bind("<ButtonRelease>", verde_Solta)
-    botaoVerd.place(x=200, y=180)
+    botaoVerd.place(x=170, y=180)
     botaoAzul = tk.Button(janela, text='    ', bg='#0000ff')
     botaoAzul.bind("<ButtonPress>", azul_Aperta)
     botaoAzul.bind("<ButtonRelease>", azul_Solta)
-    botaoAzul.place(x=230, y=180)
+    botaoAzul.place(x=260, y=180)
     botaoAm = tk.Button(janela, text='    ', bg='#FAE80B')
     botaoAm.bind("<ButtonPress>", amarelo_Aperta)
     botaoAm.bind("<ButtonRelease>", amarelo_Solta)
-    botaoAm.place(x=260, y=180)
+    botaoAm.place(x=230, y=180)
     botaoLar = tk.Button(janela, text='    ', bg='#ffa500')
     botaoLar.bind("<ButtonPress>", laranja_Aperta)
     botaoLar.bind("<ButtonRelease>", laranja_Solta)
@@ -415,18 +413,18 @@ def criar_musica_bateria():
         labelMusica = tk.Label(janela, text='Musica nao encontrada')
         labelMusica.place(x=160, y=150)
 
-    botaoVerm = tk.Button(janela, text='  Q  ', bg='#ff0000')
+    botaoVerm = tk.Button(janela, text='  W  ', bg='#ff0000')
     botaoVerm.bind("<ButtonPress>", vermelho_Aperta)
-    botaoVerm.place(x=170, y=180)
-    botaoVerd = tk.Button(janela, text='  W  ', bg='#00ff00')
+    botaoVerm.place(x=200, y=180)
+    botaoVerd = tk.Button(janela, text='  Q  ', bg='#00ff00')
     botaoVerd.bind("<ButtonPress>", verde_Aperta)
-    botaoVerd.place(x=200, y=180)
-    botaoAzul = tk.Button(janela, text='  E  ', bg='#0000ff')
+    botaoVerd.place(x=170, y=180)
+    botaoAzul = tk.Button(janela, text='  R  ', bg='#0000ff')
     botaoAzul.bind("<ButtonPress>", azul_Aperta)
-    botaoAzul.place(x=230, y=180)
-    botaoAm = tk.Button(janela, text='  R  ', bg='#FAE80B')
+    botaoAzul.place(x=260, y=180)
+    botaoAm = tk.Button(janela, text='  E  ', bg='#FAE80B')
     botaoAm.bind("<ButtonPress>", amarelo_Aperta)
-    botaoAm.place(x=260, y=180)
+    botaoAm.place(x=230, y=180)
     botaoLar = tk.Button(janela, text='  T  ', bg='#ffa500')
     botaoLar.bind("<ButtonPress>", laranja_Aperta)
     botaoLar.place(x=290, y=180)
