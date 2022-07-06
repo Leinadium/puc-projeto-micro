@@ -123,7 +123,7 @@ class ListenerGuitarra(ListenerBase):
                 linha_bytes: bytes = self._input_port.readline()
             except AttributeError:
                 break
-            # print("LI UMA LINHA -> ", linha_bytes)
+            print("LI UMA LINHA -> ", linha_bytes)
             # decodificacao dos bytes
             try:
                 linha: str = linha_bytes.decode()
@@ -157,9 +157,8 @@ class ListenerGuitarra(ListenerBase):
                 # verificando se esta no range e inverteu o sinal
                 if abs(self._nota_buffer.codigo - ret.codigo) < self._range and self._nota_buffer.on != ret.on:
                     # envia a nota afinal
-                    with self._lock:
-                        for c in self._callbacks:
-                            c(ret)
+                    for c in self._callbacks:
+                        c(ret)
             # atualiza o buffer
             self._nota_buffer = ret
 
@@ -188,5 +187,5 @@ class ListenerGuitarra(ListenerBase):
         return self._running
 
     def close(self):
-        if self._input_port.is_open:
+        if self._input_port is not None and self._input_port.is_open:
             self._input_port.close()

@@ -104,11 +104,11 @@ class Jogo:
             rangen=range_considerado
         )
         self.interface.atribui_notas(
-            nota1=1.0,
-            nota2=2.0,
+            nota1=5.0,
+            nota2=4.0,
             nota3=3.0,
-            nota4=4.0,
-            nota5=5.0
+            nota4=2.0,
+            nota5=1.0
         )
         self.interface.start()
 
@@ -248,6 +248,7 @@ class Jogo:
             self.interface.send_notification(
                 Notificacao(nota=id_nota, valor=False)
             )
+            pass
 
         self.notas_seguidas = 0
         self.multiplicador = 1
@@ -294,9 +295,14 @@ class Jogo:
         clock = pygame.time.Clock()
         self.running = True
         self.multiplicador = 1
-        # pygame.mixer.music.play()
+        pygame.mixer.music.play()
 
         while self.running:
             clock.tick(self.FPS)
             self.checa_eventos()
             self.update()
+
+        if self.interface is not None:
+            pygame.mixer.music.stop()
+            self.interface.stop()
+

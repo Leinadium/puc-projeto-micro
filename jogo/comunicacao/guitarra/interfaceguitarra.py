@@ -42,6 +42,9 @@ class InterfaceGuitarra(InterfaceBase):
 
         Faz o processamento com o range
         """
+
+        print(nota)
+
         for valor in self._valores_dicionario:  # como sao poucas notas, não é necessário um bsearch
             if abs(nota.codigo - valor) <= self._range:
                 self._callback_usuario(
@@ -63,7 +66,7 @@ class InterfaceGuitarra(InterfaceBase):
         if not self._listener.running:
             raise RuntimeError("Listener não foi executado. É necessário executar .start() antes")
 
-        self._listener.append_notification(notificacao)
+        # self._listener.append_notification(notificacao)
 
     def start(self):
         """Inicializa a captura das notas
