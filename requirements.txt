@@ -4,3 +4,4 @@ python-rtmidi
 pyserial~=3.5
 mplayer.py~=0.7.2.post1
 pynput~=1.7.6
+pillow

@@ -18,7 +18,7 @@ def main_criar():
 
     pygame.mixer.init()
 
-    pasta_atual = os.path.dirname(os.path.abspath(__file__))
+    pasta_atual = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'musicas')
     lista_audios = []
 
     janela = tk.Tk()
@@ -60,7 +60,7 @@ def main_criar():
     def toca_musica(option):
         nome_arq = option + ".mp3"
         print(nome_arq)
-        pygame.mixer.music.load(nome_arq)
+        pygame.mixer.music.load('../musicas/' + nome_arq)
         pygame.mixer.music.play()
         botao_pause = tk.Button(janela, text = '⏸️', command = pausa)
         botao_pause.place(x = 350, y = 90)
@@ -266,7 +266,7 @@ def main_criar():
         arq.write(linha)
         if nomeGuitBom in lista_audios:
             nome_arq = nomeGuitBom + ".mp3"
-            pygame.mixer.music.load(nome_arq)
+            pygame.mixer.music.load('../musicas/' + nome_arq)
             pygame.mixer.music.play()
             labelMusica = tk.Label(janela, text = 'Musica encontrada, tocando agora!')
             labelMusica.place(x=180, y = 100)
@@ -330,7 +330,7 @@ def main_criar():
         nome_arq = nomeBat + ".mp3"
         if nomeBatBom in lista_audios:
             nome_arq = nomeBatBom + ".mp3"
-            pygame.mixer.music.load(nome_arq)
+            pygame.mixer.music.load('../musicas/' + nome_arq)
             pygame.mixer.music.play()
             labelMusica = tk.Label(janela, text = 'Musica encontrada')
             labelMusica.place(x=170, y = 135)

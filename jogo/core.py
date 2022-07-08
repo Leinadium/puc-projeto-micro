@@ -18,8 +18,9 @@ from .comunicacao.base import InterfaceBase
 
 
 class Jogo:
-    FPS = 30
+    FPS = 25
     PONTUACAO_MINIMA = 5
+    LIMITE_MULTIPLICADOR = 5
     MILLIS = 1 / FPS * 1000
 
     def __init__(self,
@@ -221,7 +222,7 @@ class Jogo:
 
         # multiplicador
         multiplicador_adicionado = False
-        if self.notas_seguidas >= 10 and self.multiplicador <= 3:
+        if self.notas_seguidas >= self.LIMITE_MULTIPLICADOR and self.multiplicador <= 3:
             multiplicador_adicionado = True
             self.multiplicador += 1
             self.notas_seguidas = 0
