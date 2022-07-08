@@ -1,12 +1,12 @@
 import tkinter
 from tkinter import *
 from tkinter.ttk import Combobox, Label
-from os import listdir
+from os import listdir, path
 from os.path import isfile, join
 
-    
-from ..core import Jogo
-from ..constants import Instrumento
+
+from jogo.core import Jogo
+from jogo.constants import Instrumento
 from PIL import ImageTk, Image
 
 
@@ -44,13 +44,13 @@ class Menu:
             self._musica_selecionada = self._listbox.get(selecionada)
             #pegar o path, ler a lista, fechar menu
             print(self._musica_selecionada)
-            self._path_selecionado = f'../musicas/{self._musica_selecionada}.txt'
+            self._path_selecionado = f'C:\\Users\\usuario\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\{self._musica_selecionada}.txt'
+            self._pathmp3 = f'C:\\Users\\usuario\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\{self._musica_selecionada}.mp3'
             print(self._path_selecionado)
-            self._pathmp3 = f'./jogo/musicas/{self._musica_selecionada}.mp3'
-            
+
             self._root.destroy()
             a = Jogo(
-                instrumento_param,
+                None,
                 self._path_selecionado,
                 self._pathmp3
             )
@@ -67,13 +67,18 @@ class Menu:
         self._instrumento_selecionado = instrumento
         
         suffix = f"_{instrumento.lower()}.txt"
+        # p = path.join(path.abspath(__file__), '..', 'musicas')
+
+        p = 'C:\\Users\\usuario\\PycharmProjects\\puc-projeto-micro\\jogo\\musicas\\'
+        print(p)
+
         if instrumento is not None:
             self._musicas_possiveis.set('\n'.join([
-                f.rstrip(suffix) for f in listdir('./jogo/musicas')
-                if isfile(join('./jogo/musicas', f)) and f.endswith(suffix)
+                f.removesuffix(suffix) for f in listdir(p)
+                if isfile(join(p, f)) and f.endswith(suffix)
             ]))
+
             
-            print(self._musicas_possiveis.get())
 
     def _combo_callback(self, event=None):
         if event:
@@ -122,19 +127,18 @@ class Menu:
 
         frame = Frame(self._root, background='grey')
         frame.pack(expand=True, fill=BOTH)
-        
-        canvas = Canvas(frame, width= 350, height=160, background='grey')
-        canvas.place(x=130, y=30)
-        
-        
+
+        '''
         img_raw = Image.open("./jogo/menu/GuitarHero.png")
-        print(img_raw)
         img_resized = img_raw.resize((1844, 1256), Image.ANTIALIAS)
         img = ImageTk.PhotoImage(img_resized)
-        canvas.create_image(20, 10, anchor=NW, image=img)
+        canvas.create_image(100, 10, anchor=NW, image=img)
+        '''
+        img_raw = Image.open("./jogo/menu/GuitarHero.png")
+        img = ImageTk.PhotoImage(img_raw)
 
-        # label = Label(frame,image=img, background='white')
-        # label.place(x=-550, y=-200)
+        label = Label(frame,image=img, background='grey')
+        label.place(x=100, y=35)
 
 
         iniciar_button = Button(frame, text="Iniciar", command=self._menu_selecao_instrumento, width=20)
